@@ -19,6 +19,11 @@ ApplicationWindow {
             var note = noteComponent.createObject(root, {"visible": false})
             note.title = "Note" + count
             append({"note": note})
+            var prevNote = view.pop()
+            if (prevNote)
+                prevNote.visible = false
+            note.visible = true;
+            view.push(note)
         }
     }
 
@@ -65,6 +70,13 @@ ApplicationWindow {
                         anchors.fill: parent
                         onPressed: {
                             noteListView.currentIndex = index
+                            var prevNote = view.pop()
+                            if (prevNote)
+                                prevNote.visible = false
+
+                            var note = noteListModel.get(index)["note"]
+                            note.visible = true
+                            view.push(note)
                         }
                     }
                 }
@@ -75,12 +87,13 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Rectangle {
-                anchors.fill: parent
-                color: "#3c3c3c"
-            }
+            StackView {
+                id: view
 
-            // TODO(pvarga): StackView
+                anchors.centerIn: parent
+                width: 300
+                height: 300
+            }
         }
     }
 
@@ -89,10 +102,6 @@ ApplicationWindow {
         id: noteComponent
 
         Note {
-            anchors.centerIn: parent
-            width: 300
-            height: 300
-
             color: "#FFFF66"
 
             title: "Title"
