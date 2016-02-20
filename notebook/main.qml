@@ -24,6 +24,8 @@ ApplicationWindow {
                 prevNote.visible = false
             note.visible = true;
             view.push(note)
+
+            noteListView.currentIndex = count - 1
         }
     }
 
@@ -93,6 +95,8 @@ ApplicationWindow {
                 anchors.centerIn: parent
                 width: 300
                 height: 300
+
+                delegate: StackViewDelegate { }
             }
         }
     }

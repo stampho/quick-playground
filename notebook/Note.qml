@@ -17,7 +17,8 @@ Rectangle {
         spacing: 30
 
         Flickable {
-            height: root.height / 10
+            Layout.alignment: Qt.AlignTop
+            Layout.preferredHeight: root.height / 10
 
             anchors.top: parent.top
             anchors.topMargin: 10
@@ -47,6 +48,9 @@ Rectangle {
         TextArea {
             id: content
 
+            Layout.alignment: Qt.AlignBottom
+            Layout.fillHeight: true
+
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 10
 
@@ -55,9 +59,6 @@ Rectangle {
 
             anchors.right: parent.right
             anchors.rightMargin: 10
-
-            Layout.alignment: Qt.AlignTop
-            Layout.fillHeight: true
 
             wrapMode: TextEdit.Wrap
             backgroundVisible: false
