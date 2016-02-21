@@ -1,10 +1,10 @@
+import QtGraphicalEffects 1.0
 import QtQuick 2.4
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 
-import QtGraphicalEffects 1.0
 
 ApplicationWindow {
     id: root
@@ -13,6 +13,27 @@ ApplicationWindow {
     width: 640
     height: 480
     visible: true
+
+    Action {
+        shortcut: "Ctrl+N"
+        onTriggered: {
+            noteListModel.newNote()
+        }
+    }
+
+    Action {
+        shortcut: "Delete"
+        onTriggered: {
+            noteListModel.removeNote(noteListView.currentIndex)
+        }
+    }
+
+    Action {
+        shortcut: "Backspace"
+        onTriggered: {
+            noteListModel.removeNote(noteListView.currentIndex)
+        }
+    }
 
     ListModel {
         id: noteListModel
@@ -24,10 +45,32 @@ ApplicationWindow {
             var prevNote = view.pop()
             if (prevNote)
                 prevNote.visible = false
-            note.visible = true;
+            note.visible = true
             view.push(note)
 
             noteListView.currentIndex = count - 1
+        }
+
+        function removeNote(index) {
+            if (!count)
+                return
+
+            var prevNote = view.pop()
+            if (prevNote)
+                prevNote.visible = false
+            remove(index)
+
+            if (!count) {
+                view.clear()
+                return
+            }
+
+            var note = get(0).note
+            if (index > 1)
+                note = get(index-1).note
+
+            note.visible = true
+            view.push(note)
         }
     }
 
@@ -54,10 +97,10 @@ ApplicationWindow {
 
                 highlightFollowsCurrentItem: true
                 highlight: Rectangle {
-                    color: mainView.color
+                    color: view.color
 
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    anchors.left: parent ? parent.left : root.left
+                    anchors.right: parent ? parent.right : root.left
                 }
 
                 delegate: Component {
@@ -107,13 +150,14 @@ ApplicationWindow {
             interactive: false
 
             Rectangle {
-                id: mainView
-
+                id: viewBackground
                 anchors.fill: parent
                 color: "#eeeeee"
 
                 StackView {
                     id: view
+
+                    property alias color: viewBackground.color
 
                     anchors.centerIn: parent
                     width: 300
