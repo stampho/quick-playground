@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 
+import QtGraphicalEffects 1.0
+
 ApplicationWindow {
     id: root
 
@@ -33,70 +35,92 @@ ApplicationWindow {
         anchors.fill: parent
         orientation: Qt.Horizontal
 
-        ListView {
-            id: noteListView
+        LinearGradient {
             Layout.minimumWidth: 100
 
-            anchors.top: parent.top
-            anchors.topMargin: 5
+            start: Qt.point(0, 0)
+            end: Qt.point(width, 0)
 
-            model: noteListModel
-
-            highlightFollowsCurrentItem: true
-            highlight: Rectangle {
-                color: "lightsteelblue"
-                radius: 5
-
-                anchors.left: parent.left
-                anchors.leftMargin: 5
-
-                anchors.right: parent.right
-                anchors.rightMargin: 5
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#3c3c3c" }
+                GradientStop { position: 1.0; color: "#888888" }
             }
 
-            delegate: Component {
-                Item {
+            ListView {
+                id: noteListView
+                anchors.fill: parent
+
+                model: noteListModel
+
+                highlightFollowsCurrentItem: true
+                highlight: Rectangle {
+                    color: mainView.color
+
                     anchors.left: parent.left
-                    anchors.leftMargin: 14
-
                     anchors.right: parent.right
-                    anchors.rightMargin: 14
+                }
 
-                    height: 40
+                delegate: Component {
+                    Item {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 14
 
-                    Column {
-                        Text { text: note.title; font.bold: true }
-                    }
+                        anchors.right: parent.right
+                        anchors.rightMargin: 14
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onPressed: {
-                            noteListView.currentIndex = index
-                            var prevNote = view.pop()
-                            if (prevNote)
-                                prevNote.visible = false
+                        height: 25
 
-                            var note = noteListModel.get(index)["note"]
-                            note.visible = true
-                            view.push(note)
+                        Text {
+                            text: note.title
+                            font.bold: true
+                            color: parent.ListView.isCurrentItem ? "black" : "white"
+                            elide: Text.ElideRight
+
+                            width: parent.width
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onPressed: {
+                                noteListView.currentIndex = index
+                                var prevNote = view.pop()
+                                if (prevNote)
+                                    prevNote.visible = false
+
+                                var note = noteListModel.get(index)["note"]
+                                note.visible = true
+                                view.push(note)
+                            }
                         }
                     }
                 }
             }
         }
 
-        Item {
+        Flickable {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            StackView {
-                id: view
+            flickableDirection: Flickable.HorizontalFlick
+            clip: true
+            interactive: false
 
-                anchors.centerIn: parent
-                width: 300
-                height: 300
+            Rectangle {
+                id: mainView
 
-                delegate: StackViewDelegate { }
+                anchors.fill: parent
+                color: "#eeeeee"
+
+                StackView {
+                    id: view
+
+                    anchors.centerIn: parent
+                    width: 300
+                    height: 300
+
+                    delegate: StackViewDelegate { }
+                }
             }
         }
     }
