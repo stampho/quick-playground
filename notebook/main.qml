@@ -54,6 +54,17 @@ ApplicationWindow {
                 id: noteList
                 anchors.fill: parent
                 highlightColor: view.color
+                focus: true
+
+                MouseArea {
+                    anchors.fill: parent
+
+                    onPressed: {
+                        parent.focus = true
+                        mouse.accepted = false
+                    }
+                }
+
                 noteComponent: Component {
                     Note {
                         color: "#FFFF66"

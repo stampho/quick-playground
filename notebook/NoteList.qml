@@ -24,6 +24,7 @@ ListView {
             append({"note": note})
             root.currentIndex = count - 1
             selected(root.currentIndex)
+            root.focus = true
         }
 
         function removeNote(index) {
@@ -46,6 +47,7 @@ ListView {
 
             root.currentIndex = newIndex
             selected(root.currentIndex)
+            root.focus = true
         }
     }
 
@@ -73,9 +75,22 @@ ListView {
                 anchors.fill: parent
                 onPressed: {
                     root.currentIndex = index
-                    selected(index)
+                    selected(root.currentIndex)
                 }
             }
+        }
+    }
+
+    interactive: false
+    Keys.onPressed: {
+        if (event.key == Qt.Key_Up) {
+            root.decrementCurrentIndex()
+            selected(root.currentIndex)
+        }
+
+        if (event.key == Qt.Key_Down) {
+            root.incrementCurrentIndex()
+            selected(root.currentIndex)
         }
     }
 }
