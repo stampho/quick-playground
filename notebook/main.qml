@@ -17,60 +17,21 @@ ApplicationWindow {
     Action {
         shortcut: "Ctrl+N"
         onTriggered: {
-            noteListModel.newNote()
+            noteList.newNote()
         }
     }
 
     Action {
         shortcut: "Delete"
         onTriggered: {
-            noteListModel.removeNote(noteListView.currentIndex)
+            noteList.removeNote()
         }
     }
 
     Action {
         shortcut: "Backspace"
         onTriggered: {
-            noteListModel.removeNote(noteListView.currentIndex)
-        }
-    }
-
-    ListModel {
-        id: noteListModel
-
-        function newNote() {
-            var note = noteComponent.createObject(root, {"visible": false})
-            note.title = "Note" + count
-            append({"note": note})
-            var prevNote = view.pop()
-            if (prevNote)
-                prevNote.visible = false
-            note.visible = true
-            view.push(note)
-
-            noteListView.currentIndex = count - 1
-        }
-
-        function removeNote(index) {
-            if (!count)
-                return
-
-            var prevNote = view.pop()
-            if (prevNote)
-                prevNote.visible = false
-            remove(index)
-
-            if (!count) {
-                view.clear()
-                return
-            }
-
-            var note = get(0).note
-            if (index > 1)
-                note = get(index-1).note
-
-            note.visible = true
-            view.push(note)
+            noteList.removeNote()
         }
     }
 
@@ -89,54 +50,27 @@ ApplicationWindow {
                 GradientStop { position: 1.0; color: "#888888" }
             }
 
-            ListView {
-                id: noteListView
+            NoteList {
+                id: noteList
                 anchors.fill: parent
+                highlightColor: view.color
+                noteComponent: Component {
+                    Note {
+                        color: "#FFFF66"
 
-                model: noteListModel
-
-                highlightFollowsCurrentItem: true
-                highlight: Rectangle {
-                    color: view.color
-
-                    anchors.left: parent ? parent.left : root.left
-                    anchors.right: parent ? parent.right : root.left
+                        title: "Title"
+                        content: "Content"
+                    }
                 }
 
-                delegate: Component {
-                    Item {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 14
-
-                        anchors.right: parent.right
-                        anchors.rightMargin: 14
-
-                        height: 25
-
-                        Text {
-                            text: note.title
-                            font.bold: true
-                            color: parent.ListView.isCurrentItem ? "black" : "white"
-                            elide: Text.ElideRight
-
-                            width: parent.width
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onPressed: {
-                                noteListView.currentIndex = index
-                                var prevNote = view.pop()
-                                if (prevNote)
-                                    prevNote.visible = false
-
-                                var note = noteListModel.get(index)["note"]
-                                note.visible = true
-                                view.push(note)
-                            }
-                        }
+                onSelected: {
+                    if (index < 0) {
+                        view.clear()
+                        return
                     }
+
+                    var note = model.get(index).note
+                    view.reset(note)
                 }
             }
         }
@@ -157,11 +91,20 @@ ApplicationWindow {
                 StackView {
                     id: view
 
-                    property alias color: viewBackground.color
-
                     anchors.centerIn: parent
                     width: 300
                     height: 300
+
+                    property alias color: viewBackground.color
+
+                    function reset(note) {
+                        var prevNote = pop()
+                        if (prevNote)
+                            prevNote.visible = false
+
+                        note.visible = true
+                        push(note)
+                    }
 
                     delegate: StackViewDelegate { }
                 }
@@ -169,21 +112,8 @@ ApplicationWindow {
         }
     }
 
-
-    Component {
-        id: noteComponent
-
-        Note {
-            color: "#FFFF66"
-
-            title: "Title"
-            content: "Content"
-        }
-    }
-
-
     Component.onCompleted: {
-        noteListModel.newNote()
-        noteListModel.newNote()
+        noteList.newNote()
+        noteList.newNote()
     }
 }

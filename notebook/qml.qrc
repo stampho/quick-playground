@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>Note.qml</file>
+        <file>NoteList.qml</file>
     </qresource>
 </RCC>
