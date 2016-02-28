@@ -53,7 +53,7 @@ ApplicationWindow {
             NoteList {
                 id: noteList
                 anchors.fill: parent
-                highlightColor: view.color
+                highlightColor: noteView.color
                 focus: true
 
                 MouseArea {
@@ -65,8 +65,13 @@ ApplicationWindow {
                     }
                 }
 
-                noteComponent: Component {
+                Component {
+                    id: noteComponent
                     Note {
+                        anchors.centerIn: parent
+                        width: 300
+                        height: 300
+
                         color: "#FFFF66"
 
                         title: "Title"
@@ -74,19 +79,23 @@ ApplicationWindow {
                     }
                 }
 
-                onSelected: {
-                    if (index < 0) {
-                        view.clear()
-                        return
-                    }
+                function newNote() {
+                    var note = noteComponent.createObject(noteView.contentItem)
+                    model.addNote(note)
+                }
 
-                    var note = model.get(index).note
-                    view.reset(note)
+                function removeNote() {
+                    if (!model.count)
+                        return
+
+                    model.removeNote(currentIndex)
                 }
             }
         }
 
         Flickable {
+            id: noteView
+
             Layout.fillWidth: true
             Layout.fillHeight: true
 
@@ -94,31 +103,12 @@ ApplicationWindow {
             clip: true
             interactive: false
 
+            property alias color: noteViewBackground.color
+
             Rectangle {
-                id: viewBackground
+                id: noteViewBackground
                 anchors.fill: parent
                 color: "#eeeeee"
-
-                StackView {
-                    id: view
-
-                    anchors.centerIn: parent
-                    width: 300
-                    height: 300
-
-                    property alias color: viewBackground.color
-
-                    function reset(note) {
-                        var prevNote = pop()
-                        if (prevNote)
-                            prevNote.visible = false
-
-                        note.visible = true
-                        push(note)
-                    }
-
-                    delegate: StackViewDelegate { }
-                }
             }
         }
     }

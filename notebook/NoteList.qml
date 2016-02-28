@@ -4,10 +4,7 @@ ListView {
     id: root
 
     property color highlightColor
-    property var noteComponent
-    signal selected(int index)
-    function newNote() { model.newNote() }
-    function removeNote(index) { model.removeNote(index) }
+    function select(index) { model.select(index) }
 
     highlightFollowsCurrentItem: true
     highlight: Rectangle {
@@ -18,26 +15,30 @@ ListView {
     }
 
     model: ListModel {
-        function newNote() {
-            var note = noteComponent.createObject(root, {"visible": false})
+        function select(index) {
+            if (root.currentIndex > -1 && root.currentIndex < root.count)
+                get(root.currentIndex).note.visible = false
+
+            if (index > -1)
+                get(index).note.visible = true
+
+            root.currentIndex = index
+        }
+
+        function addNote(note) {
             note.title = "Note" + count
             append({"note": note})
-            root.currentIndex = count - 1
-            selected(root.currentIndex)
+
+            select(count-1)
             root.focus = true
         }
 
         function removeNote(index) {
-            if (index === undefined)
-                index = root.currentIndex
-
-            if (!count)
-                return
-
+            root.model.get(index).note.visible = false
             remove(index)
 
             if (!count) {
-                selected(-1)
+                select(-1)
                 return
             }
 
@@ -45,8 +46,7 @@ ListView {
             if (index > 1)
                 newIndex = index - 1
 
-            root.currentIndex = newIndex
-            selected(root.currentIndex)
+            select(newIndex)
             root.focus = true
         }
     }
@@ -74,8 +74,7 @@ ListView {
             MouseArea {
                 anchors.fill: parent
                 onPressed: {
-                    root.currentIndex = index
-                    selected(root.currentIndex)
+                    select(index)
                 }
             }
         }
@@ -83,14 +82,10 @@ ListView {
 
     interactive: false
     Keys.onPressed: {
-        if (event.key == Qt.Key_Up) {
-            root.decrementCurrentIndex()
-            selected(root.currentIndex)
-        }
+        if (event.key == Qt.Key_Up && root.currentIndex > 0)
+            select(root.currentIndex-1)
 
-        if (event.key == Qt.Key_Down) {
-            root.incrementCurrentIndex()
-            selected(root.currentIndex)
-        }
+        if (event.key == Qt.Key_Down && root.currentIndex < root.count-1)
+            select(root.currentIndex+1)
     }
 }
